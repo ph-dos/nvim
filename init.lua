@@ -776,11 +776,7 @@ local function show_diags()
     hints[#hints + 1] = { '■', severity_hl[diags[i].severity] }
   end
   hints[#hints + 1] = { string.format('■  %s', diags[1].message), severity_hl[diags[1].severity] }
-  if string.len(hints[#hints][1]) > 1 then
-    hints[#hints][1] = string.sub(hints[#hints][1], 1, -2)
-  end
   hints[1][1] = string.format('	%s', hints[1][1])
-
   vim.api.nvim_buf_set_extmark(0, diag_ns, lnum, -1, {
     virt_text = hints,
     virt_text_pos = 'eol',
@@ -788,7 +784,7 @@ local function show_diags()
   })
 end
 
-vim.api.nvim_create_autocmd({ 'CursorHold', 'TextChanged', 'TextChangedI' }, {
+vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
   callback = function(args)
     vim.api.nvim_buf_clear_namespace(0, diag_ns, 0, -1)
     show_diags()
@@ -804,35 +800,29 @@ local function get_oldest_buffer(bufs)
       oldest_buf = buf.bufnr
     end
   end
-
   return oldest_buf
 end
 
 local BUF_CAP = 6
-
 vim.api.nvim_create_autocmd('BufEnter', {
   callback = function()
     local listed_bufs = vim.fn.getbufinfo { buflisted = 1 }
     if #listed_bufs <= BUF_CAP then
       return
     end
-
     local valid_bufs = {}
     for _, buf in ipairs(listed_bufs) do
       if buf.loaded == 1 and buf.name ~= '' and buf.changed == 0 then
         table.insert(valid_bufs, buf)
       end
     end
-
     if #valid_bufs <= BUF_CAP then
       return
     end
-
     local buf = get_oldest_buffer(valid_bufs)
     if not buf then
       return
     end
-
     vim.api.nvim_buf_delete(buf, { force = false })
   end,
 })
