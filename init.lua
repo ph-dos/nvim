@@ -48,7 +48,7 @@ vim.o.smartcase = true
 vim.o.signcolumn = 'yes'
 
 -- Decrease update time
-vim.o.updatetime = 250
+vim.o.updatetime = 200
 
 -- Decrease mapped sequence wait time
 vim.o.timeoutlen = 300
@@ -460,30 +460,17 @@ require('lazy').setup({
       -- Diagnostic Config
       -- See :help vim.diagnostic.Opts
       vim.diagnostic.config {
+        virtual_text = false,
         severity_sort = true,
-        float = { border = 'rounded', source = 'if_many' },
         underline = { severity = vim.diagnostic.severity.ERROR },
         signs = vim.g.have_nerd_font and {
           text = {
-            [vim.diagnostic.severity.ERROR] = '󰅚 ',
-            [vim.diagnostic.severity.WARN] = '󰀪 ',
-            [vim.diagnostic.severity.INFO] = '󰋽 ',
-            [vim.diagnostic.severity.HINT] = '󰌶 ',
+            [vim.diagnostic.severity.ERROR] = '󱈸',
+            [vim.diagnostic.severity.WARN] = '󰋖',
+            [vim.diagnostic.severity.INFO] = '',
+            [vim.diagnostic.severity.HINT] = '',
           },
         } or {},
-        virtual_text = {
-          source = 'if_many',
-          spacing = 2,
-          format = function(diagnostic)
-            local diagnostic_message = {
-              [vim.diagnostic.severity.ERROR] = diagnostic.message,
-              [vim.diagnostic.severity.WARN] = diagnostic.message,
-              [vim.diagnostic.severity.INFO] = diagnostic.message,
-              [vim.diagnostic.severity.HINT] = diagnostic.message,
-            }
-            return diagnostic_message[diagnostic.severity]
-          end,
-        },
       }
 
       -- LSP servers and clients are able to communicate to each other what features they support.
@@ -768,6 +755,44 @@ vim.api.nvim_set_hl(0, 'LspInlayHint', {
   fg = '#938888',
   bg = '#413837',
   italic = true,
+})
+
+local diag_ns = vim.api.nvim_create_namespace 'inline_diag'
+local severity_hl = {
+  [vim.diagnostic.severity.ERROR] = 'DiagnosticVirtualTextError',
+  [vim.diagnostic.severity.WARN] = 'DiagnosticVirtualTextWarn',
+  [vim.diagnostic.severity.INFO] = 'DiagnosticVirtualTextInfo',
+  [vim.diagnostic.severity.HINT] = 'DiagnosticVirtualTextHint',
+}
+
+local function show_diags()
+  local lnum = vim.api.nvim_win_get_cursor(0)[1] - 1
+  local diags = vim.diagnostic.get(0, { lnum = lnum })
+  if #diags == 0 then
+    return
+  end
+  local hints = {}
+  for i = #diags, 2, -1 do
+    hints[#hints + 1] = { '■', severity_hl[diags[i].severity] }
+  end
+  hints[#hints + 1] = { string.format('■  %s', diags[1].message), severity_hl[diags[1].severity] }
+  if string.len(hints[#hints][1]) > 1 then
+    hints[#hints][1] = string.sub(hints[#hints][1], 1, -2)
+  end
+  hints[1][1] = string.format('	%s', hints[1][1])
+
+  vim.api.nvim_buf_set_extmark(0, diag_ns, lnum, -1, {
+    virt_text = hints,
+    virt_text_pos = 'eol',
+    hl_mode = 'combine',
+  })
+end
+
+vim.api.nvim_create_autocmd({ 'CursorHold', 'TextChanged', 'TextChangedI' }, {
+  callback = function(args)
+    vim.api.nvim_buf_clear_namespace(0, diag_ns, 0, -1)
+    show_diags()
+  end,
 })
 
 local function get_oldest_buffer(bufs)
