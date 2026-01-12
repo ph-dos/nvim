@@ -1,7 +1,7 @@
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
--- Set to true if you have a Nerd Font installed and selected in the terminal
+-- make shit look GOOD
 vim.g.have_nerd_font = true
 vim.o.guicursor = vim.o.guicursor .. ',i:block-Cursor'
 vim.o.guicursor = vim.o.guicursor .. ',n:block-blinkwait150-blinkon150-blinkoff150'
@@ -14,13 +14,8 @@ vim.o.tabstop = 4 -- Number of spaces a tab character represents
 vim.o.shiftwidth = 4 -- Size of an indent (used for autoindent, '>>', '<<', etc.)
 vim.o.expandtab = false -- Converts tabs to spaces
 vim.o.wrap = false
-
--- Make line numbers default
 vim.o.number = true
 vim.o.relativenumber = true
--- You can also add relative line numbers, to help with jumping.
---  Experiment for yourself to see if you like it!
--- vim.o.relativenumber = true
 
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.o.mouse = 'a'
@@ -92,10 +87,6 @@ vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
 -- Diagnostic keymaps
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
-
--- -- NOTE: This won't work in all terminal emulators/tmux/etc. Try your own mappin
--- -- or just use <C-\><C-n> to exit terminal mode
--- vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 
 -- Keybinds to make split navigation easier.
 --  Use CTRL+<hjkl> to switch between windows
@@ -313,8 +304,6 @@ require('lazy').setup({
     'neovim/nvim-lspconfig',
     dependencies = {
       -- Automatically install LSPs and related tools to stdpath for Neovim
-      -- Mason must be loaded before its dependents so we need to set it up here.
-      -- NOTE: `opts = {}` is the same as calling `require('mason').setup({})`
       { 'mason-org/mason.nvim', opts = {} },
       'mason-org/mason-lspconfig.nvim',
       'WhoIsSethDaniel/mason-tool-installer.nvim',
@@ -687,8 +676,6 @@ require('lazy').setup({
       --  You could remove this setup call if you don't like it,
       --  and try some other statusline plugin
       local statusline = require 'mini.statusline'
-
-      -- set use_icons to true if you have a Nerd Font
       statusline.setup { use_icons = vim.g.have_nerd_font }
 
       -- You can configure sections in the statusline by overriding their
@@ -699,8 +686,45 @@ require('lazy').setup({
         return '%2l:%-2v'
       end
 
-      -- ... and there is more!
-      --  Check out: https://github.com/echasnovski/mini.nvim
+      ---@diagnostic disable-next-line: duplicate-set-field
+      statusline.section_filename = function()
+        local parent = vim.fn.expand '%:p:h:t'
+        local fname = vim.fn.expand '%:t'
+        if parent == '' or parent == '.' then
+          return fname
+        end
+        return string.format('%s/%s', parent, fname)
+      end
+
+      ---@diagnostic disable-next-line: duplicate-set-field
+      statusline.section_fileinfo = function()
+        local lang = vim.bo.filetype
+        if lang == '' then
+          lang = 'unknown'
+        end
+        local os_name = 'unknown'
+        if vim.fn.has 'linux' == 1 then
+          os_name = 'linux'
+        elseif vim.fn.has 'unix' == 1 then
+          os_name = 'unix'
+        end
+        return string.format('%s :: %s  ', lang, os_name)
+      end
+
+      ---@diagnostic disable-next-line: duplicate-set-field
+      statusline.section_diagnostics = function()
+        local error_count = #vim.diagnostic.get(0, { severity = vim.diagnostic.severity.ERROR })
+        if error_count == 0 then
+          return ''
+        end
+        local icon = vim.g.have_nerd_font and '󱈸' or '!'
+        return string.format('%s %s', icon, error_count)
+      end
+
+      ---@diagnostic disable-next-line: duplicate-set-field
+      statusline.section_lsp = function()
+        return ''
+      end
     end,
   },
   { -- Highlight, edit, and navigate code
@@ -728,23 +752,7 @@ require('lazy').setup({
 
   { import = 'custom.plugins' },
 }, {
-  ui = {
-    icons = vim.g.have_nerd_font and {} or {
-      cmd = '⌘',
-      config = '🛠',
-      event = '📅',
-      ft = '📂',
-      init = '⚙',
-      keys = '🗝',
-      plugin = '🔌',
-      runtime = '💻',
-      require = '🌙',
-      source = '📄',
-      start = '🚀',
-      task = '📌',
-      lazy = '💤 ',
-    },
-  },
+  ui = { icons = vim.g.have_nerd_font and {} },
 })
 
 -- The line beneath this is called `modeline`. See `:help modeline`
