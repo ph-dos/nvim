@@ -6,6 +6,10 @@ return {
         filter = 'ristretto',
         override = function()
           return {
+            BlinkCmpMenu = { bg = '#000000' },
+            NormalFloat = { bg = '#000000' },
+            FloatBorder = { bg = '#000000', fg = '#948a8b' },
+            Pmenu = { bg = '#000000' },
             nontext = { fg = '#948a8b' },
             miniiconsgrey = { fg = '#948a8b' },
             miniiconsred = { fg = '#fd6883' },
