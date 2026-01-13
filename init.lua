@@ -351,14 +351,6 @@ require('lazy').setup({
               end,
             })
           end
-
-          -- The following code creates a keymap to toggle inlay hints in your
-          -- code, if the language server you are using supports them
-          if client and client_supports_method(client, vim.lsp.protocol.Methods.textDocument_inlayHint, event.buf) then
-            map('<leader>th', function()
-              vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled { bufnr = event.buf })
-            end, '[T]oggle Inlay [H]ints')
-          end
         end,
       })
 
@@ -619,12 +611,13 @@ require('lazy').setup({
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
 
-vim.lsp.inlay_hint.enable(true)
-vim.api.nvim_set_hl(0, 'LspInlayHint', {
-  fg = '#938888',
-  bg = '#413837',
-  italic = true,
-})
+-- inlay hints if you want
+-- vim.lsp.inlay_hint.enable(true)
+-- vim.api.nvim_set_hl(0, 'LspInlayHint', {
+--   fg = '#938888',
+--   bg = '#413837',
+--   italic = true,
+-- })
 
 local diag_ns = vim.api.nvim_create_namespace 'inline_diag'
 local severity_hl = {
