@@ -544,9 +544,9 @@ require('lazy').setup({
         local parent = vim.fn.expand '%:p:h:t'
         local fname = vim.fn.expand '%:t'
         if parent == '' or parent == '.' then
-          return fname
+          return string.format('%s %%m', fname)
         end
-        return string.format('%s/%s', parent, fname)
+        return string.format('%s/%s %%m', parent, fname)
       end
 
       ---@diagnostic disable-next-line: duplicate-set-field

@@ -10,6 +10,9 @@ return {
     opts = {
       filter = 'ristretto',
       background_clear = { 'float_win', 'telescope', 'which-key' },
+      override = function()
+        return { BlinkCmpMenu = { bg = 'NONE', fg = 'NONE' } }
+      end,
     },
   },
 }
