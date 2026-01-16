@@ -1,9 +1,9 @@
 return {
-  {
-    'mrcjkb/rustaceanvim',
-    version = '^6',
-    lazy = false,
-  },
+  -- {
+  --   'mrcjkb/rustaceanvim',
+  --   version = '^6',
+  --   lazy = false,
+  -- },
   -- {
   --   'windwp/nvim-ts-autotag',
   --   dependencies = { 'nvim-treesitter/nvim-treesitter' },

@@ -1,7 +1,6 @@
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
--- make shit look GOOD
 vim.g.have_nerd_font = true
 vim.o.winborder = 'rounded'
 vim.o.guicursor = vim.o.guicursor .. ',i:block-Cursor'
@@ -221,10 +220,7 @@ require('lazy').setup({
 
       -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '<leader>/', function()
-        builtin.current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
-          winblend = 10,
-          previewer = false,
-        })
+        builtin.current_buffer_fuzzy_find(require('telescope.themes').get_dropdown { previewer = false })
       end, { desc = '[/] Fuzzily search in current buffer' })
       vim.keymap.set('n', '<leader>s/', function()
         builtin.live_grep {
@@ -233,7 +229,6 @@ require('lazy').setup({
         }
       end, { desc = '[S]earch [/] in Open Files' })
 
-      -- Shortcut for searching your Neovim configuration files
       vim.keymap.set('n', '<leader>sn', function()
         builtin.find_files { cwd = vim.fn.stdpath 'config' }
       end, { desc = '[S]earch [N]eovim files' })
@@ -325,31 +320,6 @@ require('lazy').setup({
             else
               return client.supports_method(method, { bufnr = bufnr })
             end
-          end
-
-          -- Highlight words on hold
-          local client = vim.lsp.get_client_by_id(event.data.client_id)
-          if client and client_supports_method(client, vim.lsp.protocol.Methods.textDocument_documentHighlight, event.buf) then
-            local highlight_augroup = vim.api.nvim_create_augroup('kickstart-lsp-highlight', { clear = false })
-            vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
-              buffer = event.buf,
-              group = highlight_augroup,
-              callback = vim.lsp.buf.document_highlight,
-            })
-
-            vim.api.nvim_create_autocmd({ 'CursorMoved', 'CursorMovedI' }, {
-              buffer = event.buf,
-              group = highlight_augroup,
-              callback = vim.lsp.buf.clear_references,
-            })
-
-            vim.api.nvim_create_autocmd('LspDetach', {
-              group = vim.api.nvim_create_augroup('kickstart-lsp-detach', { clear = true }),
-              callback = function(event2)
-                vim.lsp.buf.clear_references()
-                vim.api.nvim_clear_autocmds { group = 'kickstart-lsp-highlight', buffer = event2.buf }
-              end,
-            })
           end
         end,
       })
@@ -486,10 +456,6 @@ require('lazy').setup({
         nerd_font_variant = 'mono',
       },
 
-      completion = {
-        documentation = { auto_show = false, auto_show_delay_ms = 1000 },
-      },
-
       sources = {
         default = { 'lsp', 'path', 'snippets', 'lazydev' },
         providers = {
@@ -607,17 +573,6 @@ require('lazy').setup({
 }, {
   ui = { icons = vim.g.have_nerd_font and {} },
 })
-
--- The line beneath this is called `modeline`. See `:help modeline`
--- vim: ts=2 sts=2 sw=2 et
-
--- inlay hints if you want
--- vim.lsp.inlay_hint.enable(true)
--- vim.api.nvim_set_hl(0, 'LspInlayHint', {
---   fg = '#938888',
---   bg = '#413837',
---   italic = true,
--- })
 
 local diag_ns = vim.api.nvim_create_namespace 'inline_diag'
 
