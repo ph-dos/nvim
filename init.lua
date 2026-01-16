@@ -620,25 +620,25 @@ require('lazy').setup({
 -- })
 
 local diag_ns = vim.api.nvim_create_namespace 'inline_diag'
-local severity_hl = {
-  [vim.diagnostic.severity.ERROR] = 'DiagnosticVirtualTextError',
-  [vim.diagnostic.severity.WARN] = 'DiagnosticVirtualTextWarn',
-  [vim.diagnostic.severity.INFO] = 'DiagnosticVirtualTextInfo',
-  [vim.diagnostic.severity.HINT] = 'DiagnosticVirtualTextHint',
-}
 
 local function show_diags()
   local lnum = vim.api.nvim_win_get_cursor(0)[1] - 1
-  local diags = vim.diagnostic.get(0, { lnum = lnum })
+  local diags = vim.diagnostic.get(0, { lnum = lnum, severity = { vim.diagnostic.severity.WARN, vim.diagnostic.severity.ERROR } })
   if #diags == 0 then
     return
   end
   local hints = {}
-  for i = #diags, 2, -1 do
-    hints[#hints + 1] = { '■', severity_hl[diags[i].severity] }
+  for i = 1, #diags do
+    if diags[i].severity == vim.diagnostic.severity.ERROR then
+      hints[#hints + 1] = { string.format('■ %s', diags[i].message), 'DiagnosticVirtualTextError' }
+      break
+    elseif i == #diags then
+      hints[#hints + 1] = { string.format('■ %s', diags[i].message), 'DiagnosticVirtualTextWarn' }
+    else
+      hints[#hints + 1] = { '■', 'DiagnosticVirtualTextWarn' }
+    end
   end
-  hints[#hints + 1] = { string.format('■  %s', diags[1].message), severity_hl[diags[1].severity] }
-  hints[1][1] = string.format('	%s', hints[1][1])
+  hints[1][1] = string.format('  %s', hints[1][1])
   vim.api.nvim_buf_set_extmark(0, diag_ns, lnum, -1, {
     virt_text = hints,
     virt_text_pos = 'eol',
