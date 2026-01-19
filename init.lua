@@ -15,7 +15,7 @@ vim.o.swapfile = false
 vim.o.breakindent = true
 vim.o.undofile = true
 vim.o.signcolumn = 'yes'
-vim.o.updatetime = 150
+vim.o.updatetime = 100
 vim.o.timeoutlen = 300
 vim.o.cursorline = true
 vim.o.scrolloff = 10
@@ -533,7 +533,7 @@ local function show_diags()
       hints[#hints + 1] = { '■', 'DiagnosticVirtualTextWarn' }
     end
   end
-  hints[1][1] = string.format('  %s', hints[1][1])
+  hints[1][1] = string.format('        %s', hints[1][1])
   vim.api.nvim_buf_set_extmark(0, diag_ns, lnum, -1, {
     virt_text = hints,
     virt_text_pos = 'eol',
@@ -541,9 +541,12 @@ local function show_diags()
   })
 end
 
-vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
-  callback = function(args)
+vim.api.nvim_create_autocmd({ 'CursorHold', 'DiagnosticChanged', 'ModeChanged' }, {
+  callback = function()
     vim.api.nvim_buf_clear_namespace(0, diag_ns, 0, -1)
+    if vim.api.nvim_get_mode().mode == 'i' then
+      return
+    end
     show_diags()
   end,
 })
