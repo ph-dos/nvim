@@ -365,7 +365,7 @@ require('lazy').setup({
       notify_on_error = false,
       format_on_save = function(bufnr)
         -- Disable "format_on_save lsp_fallback" for langs
-        local disable_filetypes = { c = true, cpp = true, rust = true }
+        local disable_filetypes = { c = true, cpp = true }
         if disable_filetypes[vim.bo[bufnr].filetype] then
           return nil
         else
