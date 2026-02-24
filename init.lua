@@ -298,14 +298,6 @@ require('lazy').setup({
         virtual_text = false,
         severity_sort = true,
         underline = { severity = vim.diagnostic.severity.ERROR },
-        signs = vim.g.have_nerd_font and {
-          text = {
-            [vim.diagnostic.severity.ERROR] = '󱈸',
-            [vim.diagnostic.severity.WARN] = '󰋖',
-            [vim.diagnostic.severity.INFO] = '',
-            [vim.diagnostic.severity.HINT] = '',
-          },
-        } or {},
       }
 
       local capabilities = require('blink.cmp').get_lsp_capabilities()
@@ -518,10 +510,18 @@ local diag_ns = vim.api.nvim_create_namespace 'inline_diag'
 
 local function show_diags()
   local lnum = vim.api.nvim_win_get_cursor(0)[1] - 1
-  local diags = vim.diagnostic.get(0, { lnum = lnum, severity = { vim.diagnostic.severity.WARN, vim.diagnostic.severity.ERROR } })
+  local diags = vim.diagnostic.get(0, {
+    lnum = lnum,
+    severity = {
+      vim.diagnostic.severity.WARN,
+      vim.diagnostic.severity.ERROR,
+    },
+  })
+
   if #diags == 0 then
     return
   end
+
   local hints = {}
   for i = 1, #diags do
     if diags[i].severity == vim.diagnostic.severity.ERROR then
@@ -533,11 +533,11 @@ local function show_diags()
       hints[#hints + 1] = { '■', 'DiagnosticVirtualTextWarn' }
     end
   end
+
   hints[1][1] = string.format('        %s', hints[1][1])
-  vim.api.nvim_buf_set_extmark(0, diag_ns, lnum, -1, {
+  vim.api.nvim_buf_set_extmark(0, diag_ns, lnum, 0, {
     virt_text = hints,
     virt_text_pos = 'eol',
-    hl_mode = 'combine',
   })
 end
 
