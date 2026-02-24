@@ -440,7 +440,7 @@ require('lazy').setup({
 
       ---@diagnostic disable-next-line: duplicate-set-field
       statusline.section_filename = function()
-        local parent = vim.fn.expand '%:p:h:t'
+        local parent = string.format('%s/%s', vim.fn.expand '%:p:h:h:t', vim.fn.expand '%:p:h:t')
         local fname = vim.fn.expand '%:t'
         if parent == '' or parent == '.' then
           return string.format('%s %%m', fname)
