@@ -551,38 +551,40 @@ vim.api.nvim_create_autocmd({ 'CursorHold', 'DiagnosticChanged', 'ModeChanged' }
   end,
 })
 
-local function get_oldest_buffer(bufs)
-  local oldest_buf_time = math.huge
-  local oldest_buf
-  for _, buf in ipairs(bufs) do
-    if buf.lastused < oldest_buf_time then
-      oldest_buf_time = buf.lastused
-      oldest_buf = buf.bufnr
-    end
-  end
-  return oldest_buf
-end
-
-local BUF_CAP = 6
+-- buffer janitor
+local BUF_CAP = 5
 vim.api.nvim_create_autocmd('BufEnter', {
   callback = function()
-    local listed_bufs = vim.fn.getbufinfo { buflisted = 1 }
-    if #listed_bufs <= BUF_CAP then
+    local listed_bufs = vim.fn.getbufinfo { buflisted = 1, bufloaded = 1 }
+
+    -- add one to account for the open buf
+    if #listed_bufs <= BUF_CAP + 1 then
       return
     end
-    local valid_bufs = {}
-    for _, buf in ipairs(listed_bufs) do
-      if buf.loaded == 1 and buf.name ~= '' and buf.changed == 0 then
-        table.insert(valid_bufs, buf)
+
+    local changed_bufs = 0
+    local oldest_buf_time = math.huge
+    local oldest_buf = nil
+    local current_buf = vim.api.nvim_get_current_buf()
+    for i, buf in ipairs(listed_bufs) do
+      if buf.changed == 0 then
+        changed_bufs = changed_bufs + 1
+
+        if buf.bufnr ~= current_buf and buf.lastused < oldest_buf_time then
+          oldest_buf_time = buf.lastused
+          oldest_buf = buf
+        end
       end
     end
-    if #valid_bufs <= BUF_CAP then
+
+    if not oldest_buf or changed_bufs <= BUF_CAP then
       return
     end
-    local buf = get_oldest_buffer(valid_bufs)
-    if not buf then
-      return
+
+    local success = pcall(vim.api.nvim_buf_delete, oldest_buf.bufnr, { force = false })
+    if success then
+      local name = vim.fn.fnamemodify(oldest_buf.name, ':t')
+      vim.notify('cleared: ' .. name, vim.log.levels.INFO)
     end
-    vim.api.nvim_buf_delete(buf, { force = false })
   end,
 })
