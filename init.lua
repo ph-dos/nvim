@@ -374,7 +374,6 @@ require("lazy").setup({
                     end
                     return "make install_jsregexp"
                 end)(),
-                -- dependencies = { `friendly-snippets` contains a variety of premade snippets. https://github.com/rafamadriz/friendly-snippets },
                 opts = {},
             },
             "folke/lazydev.nvim",
