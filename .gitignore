@@ -1,7 +1,8 @@
-tags
-test.sh
-.luarc.json
-nvim
+*
 
-spell/
-lazy-lock.json
+!init.lua
+!LICENSE.md
+!README.md
+!lazyvim.json
+!/lua
+!/lua/**
