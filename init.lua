@@ -363,6 +363,7 @@ require("lazy").setup({
                 end
             end,
             formatters_by_ft = { lua = { "stylua" }, python = { "ruff_format", "ruff_fix" }, json = { "jq" } },
+            formatters = { jq = { args = { "--indent", "2" } } },
         },
     },
 
@@ -414,7 +415,6 @@ require("lazy").setup({
         },
     },
 
-    -- Highlight todo, notes, etc in comments
     { "folke/todo-comments.nvim", event = "VimEnter", dependencies = { "nvim-lua/plenary.nvim" }, opts = { signs = false } },
 
     { -- Collection of various small independent plugins/modules
@@ -495,9 +495,7 @@ require("lazy").setup({
         },
     },
 
-    -- require 'kickstart.plugins.indent_line',
-    -- require 'kickstart.plugins.lint',
-    -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
+    require("kickstart.plugins.gitsigns"), -- adds gitsigns recommend keymaps
 
     { import = "custom.plugins" },
 }, {
