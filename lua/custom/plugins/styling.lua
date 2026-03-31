@@ -5,7 +5,10 @@ return {
         priority = 1000,
         init = function()
             local lackluster = require("lackluster")
-            lackluster.setup({ tweak_highlight = { ["@comment"] = { overwrite = false, italic = true } } })
+            lackluster.setup({
+                tweak_color = { lack = "#789978" },
+                tweak_highlight = { ["@comment"] = { overwrite = false, italic = true } },
+            })
             vim.cmd.colorscheme("lackluster-hack")
 
             -- Dark auto complete
