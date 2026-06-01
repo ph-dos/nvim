@@ -23,6 +23,14 @@ return {
         opts = {
             file_types = { "markdown" },
             ignore = function(buf)
+                -- Icons/markdown rendering are reserved for real `.md` files.
+                -- Buffers can carry filetype=markdown without being a .md file
+                -- on disk (scratch buffers, plugin output, etc.); ignore those
+                -- so icons never leak.
+                local name = vim.api.nvim_buf_get_name(buf)
+                if not name:match("%.md$") then
+                    return true
+                end
                 local win = vim.fn.bufwinid(buf)
                 if win == -1 then
                     return false

@@ -41,8 +41,11 @@ vim.opt.listchars = { tab = "  ", trail = "·", nbsp = "␣" }
 vim.o.inccommand = "split"
 
 -- [[ Basic Keymaps ]]
+
+vim.keymap.set("n", "<leader>;", ":!", { desc = "Quick shell command" })
+
 --  See `:help vim.keymap.set()`
-vim.keymap.set("n", "<Leader>e", "<CMD>Oil<CR>", { desc = "Open parent directory" })
+vim.keymap.set("n", "<leader>e", "<CMD>Oil<CR>", { desc = "Open parent directory" })
 
 -- Clear highlights on search when pressing <Esc> in normal mode
 --  See `:help hlsearch`
@@ -433,7 +436,7 @@ require("lazy").setup({
             require("mini.surround").setup()
 
             local statusline = require("mini.statusline")
-            statusline.setup({ use_icons = vim.g.have_nerd_font })
+            statusline.setup()
 
             -- Always show the built-in short mode label (N, I, V, V-L, ...) by
             -- forcing mini's truncated path regardless of window width.
